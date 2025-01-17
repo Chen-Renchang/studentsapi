@@ -3,15 +3,15 @@ from typing import List, Dict
 from app.domain.entities import Group, Student
 from app.persistance.base import BaseGroupPersistence
 
-# 模拟数据存储
-groups: Dict[str, Dict] = {}
-students: Dict[str, Dict] = {}
-group_students: Dict[str, List[str]] = {}  # 存储组和学生的关系 {group_id: [student_id1, student_id2, ...]}
+# Имитация хранения данных в памяти
+groups: Dict[str, Dict] = {}  # Словарь для хранения групп
+students: Dict[str, Dict] = {}  # Словарь для хранения студентов
+group_students: Dict[str, List[str]] = {}  # Словарь для хранения связей групп и студентов {group_id: [student_id1, student_id2, ...]}
 
 
 class GroupDictionaryPersistence(BaseGroupPersistence):
     def get_by_id(self, group_id: UUID) -> Group | None:
-        """通过ID获取组"""
+        """Получить группу по ID."""
         group_str_id = str(group_id)
         if group_str_id in groups:
             group_dict = groups[group_str_id]
@@ -23,7 +23,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         return None
 
     def get_all(self) -> List[Group]:
-        """获取所有组"""
+        """Получить все группы."""
         return [
             Group(
                 id=UUID(group_dict['id']),
@@ -34,18 +34,18 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         ]
 
     def create_group(self, group: Group) -> Group:
-        """创建新组"""
+        """Создать новую группу."""
         group_str_id = str(group.id)
         groups[group_str_id] = {
             'id': str(group.id),
             'name': group.name,
             'number': group.number
         }
-        group_students[group_str_id] = []  # 初始化空的学生列表
+        group_students[group_str_id] = []  # Инициализация пустого списка студентов
         return group
 
     def delete_group(self, group_id: UUID) -> None:
-        """删除组"""
+        """Удалить группу."""
         group_str_id = str(group_id)
         if group_str_id in groups:
             del groups[group_str_id]
@@ -53,7 +53,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
                 del group_students[group_str_id]
 
     def get_all_students(self) -> List[Student]:
-        """获取所有学生"""
+        """Получить всех студентов."""
         return [
             Student(
                 id=UUID(student_dict['id']),
@@ -64,7 +64,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         ]
 
     def get_student_by_id(self, student_id: UUID) -> Student | None:
-        """通过ID获取学生"""
+        """Получить студента по ID."""
         student_str_id = str(student_id)
         if student_str_id in students:
             student_dict = students[student_str_id]
@@ -76,7 +76,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         return None
 
     def create_student(self, student: Student) -> Student:
-        """创建新学生"""
+        """Создать нового студента."""
         student_str_id = str(student.id)
         students[student_str_id] = {
             'id': str(student.id),
@@ -86,17 +86,17 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         return student
 
     def delete_student(self, student_id: UUID) -> None:
-        """删除学生"""
+        """Удалить студента."""
         student_str_id = str(student_id)
         if student_str_id in students:
-            # 从所有组中移除该学生
+            # Удаление студента из всех групп
             for group_student_list in group_students.values():
                 if student_str_id in group_student_list:
                     group_student_list.remove(student_str_id)
             del students[student_str_id]
 
     def get_group_students(self, group_id: UUID) -> List[Student]:
-        """获取组内所有学生"""
+        """Получить всех студентов в группе."""
         group_str_id = str(group_id)
         if group_str_id in group_students:
             student_ids = group_students[group_str_id]
@@ -112,7 +112,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
         return []
 
     def assign_student_to_group(self, student_id: UUID, group_id: UUID) -> None:
-        """将学生分配到组"""
+        """Добавить студента в группу."""
         group_str_id = str(group_id)
         student_str_id = str(student_id)
 
@@ -123,7 +123,7 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
             group_students[group_str_id].append(student_str_id)
 
     def remove_student_from_group(self, student_id: UUID, group_id: UUID) -> None:
-        """从组中移除学生"""
+        """Удалить студента из группы."""
         group_str_id = str(group_id)
         student_str_id = str(student_id)
 
@@ -131,8 +131,8 @@ class GroupDictionaryPersistence(BaseGroupPersistence):
             group_students[group_str_id].remove(student_str_id)
 
     def transfer_student_between_groups(self, student_id: UUID, from_group_id: UUID, to_group_id: UUID) -> None:
-        """将学生从一个组转移到另一个组"""
-        # 先从原组移除
+        """Переместить студента из одной группы в другую."""
+        # Сначала удаляем из исходной группы
         self.remove_student_from_group(student_id, from_group_id)
-        # 再添加到新组
+        # Затем добавляем в новую группу
         self.assign_student_to_group(student_id, to_group_id)
