@@ -2,7 +2,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from typing import List, Optional
 
-# 基础 Schema
+# Базовые схемы
 class ApiV1GroupCreateSchema(BaseModel):
     id: UUID
     name: str
@@ -22,16 +22,16 @@ class ApiV1StudentGetSchema(BaseModel):
     id: UUID
     name: str
     number: str
-    group_id: Optional[UUID] = None  # 学生可能属于某个组
+    group_id: Optional[UUID] = None  # Студент может принадлежать к группе
 
-# 列表响应 Schema
+# Схемы для списков
 class ApiV1GroupListSchema(BaseModel):
     groups: List[ApiV1GroupGetSchema]
 
 class ApiV1StudentListSchema(BaseModel):
     students: List[ApiV1StudentGetSchema]
 
-# 删除操作响应 Schema
+# Схемы для ответов на удаление
 class ApiV1StudentDeleteResponseSchema(BaseModel):
     success: bool
     message: str
@@ -42,7 +42,7 @@ class ApiV1GroupDeleteResponseSchema(BaseModel):
     message: str
     group_id: UUID
 
-# 组内学生操作 Schema
+# Схемы для операций с группами студентов
 class ApiV1StudentGroupAssignSchema(BaseModel):
     student_id: UUID
     group_id: UUID
@@ -56,7 +56,7 @@ class ApiV1StudentGroupTransferSchema(BaseModel):
     from_group_id: UUID
     to_group_id: UUID
 
-# 组内学生列表响应 Schema
+# Схема для списка студентов в группе
 class ApiV1GroupStudentsSchema(BaseModel):
     group_id: UUID
     group_name: str
